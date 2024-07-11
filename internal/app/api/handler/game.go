@@ -2,28 +2,37 @@ package handler
 
 import (
 	"encoding/json"
-	domain "github.com/boliev/vkwordle/internal/domain/repository/puzzle"
+	"github.com/boliev/vkwordle/internal/domain/game"
 	routing "github.com/qiangxue/fasthttp-routing"
+	log "github.com/sirupsen/logrus"
 )
 
 type StartResponse struct {
-	Word string
+	Game *game.Game `json:"game"`
 }
 
 type Game struct {
-	puzzleRepo domain.PuzzleRepository
+	gameService *game.Service
 }
 
-func NewGame(puzzleRepo domain.PuzzleRepository) *Game {
+func NewGame(gameService *game.Service) *Game {
 	return &Game{
-		puzzleRepo: puzzleRepo,
+		gameService: gameService,
 	}
 }
 
 func (g *Game) Start(rctx *routing.Context) error {
-	puzzle := g.puzzleRepo.GetPuzzle()
+	newGame, err := g.gameService.CreateGame()
+	if err != nil {
+		log.Errorf("%s", err)
+		rctx.RequestCtx.Error("cannot start game", 400)
+	}
 
-	jsn, err := json.Marshal(puzzle)
+	response := StartResponse{
+		Game: newGame,
+	}
+
+	jsn, err := json.Marshal(response)
 	if err != nil {
 		return err
 	}

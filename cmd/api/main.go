@@ -4,7 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/boliev/vkwordle/internal/app/api"
-	pg_repository "github.com/boliev/vkwordle/internal/infrastucture/repository/pg/puzzle"
+	"github.com/boliev/vkwordle/internal/domain/game"
+	"github.com/boliev/vkwordle/internal/infrastucture/repository/pg"
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose/v3"
 	log "github.com/sirupsen/logrus"
@@ -18,8 +19,10 @@ func main() {
 		panic(err)
 	}
 
-	puzzleRepo := pg_repository.NewPuzzle(db)
-	app := api.NewApi(puzzleRepo)
+	puzzleRepo := pg.NewPuzzle(db)
+
+	gameService := game.NewService(puzzleRepo)
+	app := api.NewApi(gameService)
 	app.Run()
 }
 
