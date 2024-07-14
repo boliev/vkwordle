@@ -1,14 +1,13 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE puzzle
+CREATE TABLE puzzles
 (
-    word     varchar(10) not null,
-    category varchar(60) not null,
-    hint     varchar(256) null,
-    PRIMARY KEY (word)
+    word     VARCHAR(15) NOT NULL PRIMARY KEY,
+    category VARCHAR(60) NOT NULL,
+    hint     VARCHAR(265) NULL
 );
 
-INSERT INTO puzzle ("word", "category", "hint") VALUES
+INSERT INTO puzzles ("word", "category", "hint") VALUES
 ('пират','криминал','Представители этой профессии занимаются незаконной деятельностью на морских судах'),
 ('аббат','религия','Настоятель мужского католического монастыря'),
 ('борец','спорт','Спортсмен учавствующий в рукопашной схватке, в которой каждый старается осилить другого, свалив его с ног'),
@@ -22,5 +21,5 @@ INSERT INTO puzzle ("word", "category", "hint") VALUES
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE puzzle;
+DROP TABLE puzzles;
 -- +goose StatementEnd

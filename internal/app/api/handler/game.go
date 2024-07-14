@@ -22,7 +22,8 @@ func NewGame(gameService *game.Service) *Game {
 }
 
 func (g *Game) Start(rctx *routing.Context) error {
-	newGame, err := g.gameService.CreateGame()
+	userId := int64(1122334455)
+	newGame, err := g.gameService.CreateGame(userId)
 	if err != nil {
 		log.Errorf("%s", err)
 		rctx.RequestCtx.Error("cannot start game", 400)

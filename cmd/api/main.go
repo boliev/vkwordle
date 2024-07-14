@@ -20,8 +20,9 @@ func main() {
 	}
 
 	puzzleRepo := pg.NewPuzzle(db)
+	gameRepo := pg.NewGame(db)
 
-	gameService := game.NewService(puzzleRepo)
+	gameService := game.NewService(puzzleRepo, gameRepo)
 	app := api.NewApi(gameService)
 	app.Run()
 }

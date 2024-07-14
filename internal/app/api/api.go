@@ -21,7 +21,12 @@ func NewApi(gameService *game.Service) *Api {
 func (a *Api) Run() {
 	gameHandler := handler.NewGame(a.gameService)
 	r := routing.New()
-	api := r.Group("/api/v1")
+
+	api := r.Group("/api/v1", func(rctx *routing.Context) error {
+		rctx.Response.Header.Set("Content-Type", "application/json")
+		return nil
+	})
+
 	api.Get("/game/start", gameHandler.Start)
 	port := 8180
 	fmt.Printf("Serving on localhost:%d\n", port)

@@ -1,9 +1,14 @@
 package game
 
+const STATUS_IN_PROGRESS = 0
+const TYPE_5_WORDS = 5
+
 type Game struct {
-	ID     uint64 `json:"id"`
-	Status string `json:"status"`
-	Words  map[uint]Word
+	ID     int64 `json:"id"`
+	UserId int64 `json:"user_id"`
+	Status int8  `json:"status"`
+	Type   int8  `json:"type"`
+	Words  map[int8]*Word
 }
 
 type Word struct {

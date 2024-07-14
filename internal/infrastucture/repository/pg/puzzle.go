@@ -15,8 +15,8 @@ func NewPuzzle(db *sql.DB) *Puzzle {
 	}
 }
 
-func (p *Puzzle) GetPuzzle() (*game.Puzzle, error) {
-	const s = "SELECT word, category, hint FROM puzzle ORDER BY RANDOM() LIMIT 1"
+func (p *Puzzle) GetRandomPuzzle() (*game.Puzzle, error) {
+	const s = "SELECT word, category, hint FROM puzzles ORDER BY RANDOM() LIMIT 1"
 
 	puzzle := &game.Puzzle{}
 	row := p.DB.QueryRow(s)

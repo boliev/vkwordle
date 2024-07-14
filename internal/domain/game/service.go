@@ -2,23 +2,36 @@ package game
 
 type Service struct {
 	puzzleRepo PuzzleRepository
+	gameRepo   GameRepository
 }
 
-func NewService(PuzzleRepo PuzzleRepository) *Service {
+func NewService(puzzleRepo PuzzleRepository, gameRepo GameRepository) *Service {
 	return &Service{
-		puzzleRepo: PuzzleRepo,
+		puzzleRepo: puzzleRepo,
+		gameRepo:   gameRepo,
 	}
 }
 
-func (g *Service) CreateGame() (*Game, error) {
-	puzzle, err := g.puzzleRepo.GetPuzzle()
+func (s *Service) CreateGame(userId int64) (*Game, error) {
+
+	activeGame, err := s.gameRepo.GetActiveGame(userId, TYPE_5_WORDS)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Game{
-		ID:     1,
-		Status: puzzle.Word,
-		Words:  make(map[uint]Word),
-	}, nil
+	if activeGame != nil {
+		return activeGame, nil
+	}
+
+	puzzle, err := s.puzzleRepo.GetRandomPuzzle()
+	if err != nil {
+		return nil, err
+	}
+
+	game, err := s.gameRepo.CreateGame(userId, puzzle.Word)
+	if err != nil {
+		return nil, err
+	}
+
+	return game, nil
 }

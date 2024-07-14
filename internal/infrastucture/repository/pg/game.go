@@ -1,0 +1,66 @@
+package pg
+
+import (
+	"database/sql"
+	"errors"
+	"github.com/boliev/vkwordle/internal/domain/game"
+	"github.com/lib/pq"
+)
+
+type Game struct {
+	DB *sql.DB
+}
+
+func NewGame(db *sql.DB) *Game {
+	return &Game{
+		DB: db,
+	}
+}
+
+func (g *Game) CreateGame(userId int64, word string) (*game.Game, error) {
+	const s = "INSERT INTO games (user_id, puzzle) VALUES ($1, $2) RETURNING id"
+
+	res := g.DB.QueryRow(s, userId, word)
+
+	var newId int64
+	err := res.Scan(&newId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &game.Game{
+		ID:     newId,
+		UserId: userId,
+		Status: game.STATUS_IN_PROGRESS,
+		Type:   game.TYPE_5_WORDS,
+		Words:  make(map[int8]*game.Word),
+	}, nil
+}
+
+func (g *Game) GetActiveGame(userId int64, gameType int8) (*game.Game, error) {
+	const s = "SELECT id, words FROM games WHERE user_id = $1 AND status = $2 AND type = $3 LIMIT 1"
+	userGame := game.Game{}
+	var words []string
+
+	row := g.DB.QueryRow(s, userId, game.STATUS_IN_PROGRESS, gameType)
+
+	err := row.Scan(&userGame.ID, pq.Array(&words))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+	userGame.Type = gameType
+	userGame.Status = game.STATUS_IN_PROGRESS
+
+	for k, word := range words {
+		userGame.Words[int8(k)] = &game.Word{
+			Word: word,
+		}
+	}
+
+	return &userGame, nil
+}
