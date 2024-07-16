@@ -39,13 +39,13 @@ func (g *Game) CreateGame(userId int64, word string) (*game.Game, error) {
 }
 
 func (g *Game) GetActiveGame(userId int64, gameType int8) (*game.Game, error) {
-	const s = "SELECT id, words FROM games WHERE user_id = $1 AND status = $2 AND type = $3 LIMIT 1"
+	const s = "SELECT id, puzzle, words FROM games WHERE user_id = $1 AND status = $2 AND type = $3 LIMIT 1"
 	userGame := game.Game{}
 	var words []string
 
 	row := g.DB.QueryRow(s, userId, game.STATUS_IN_PROGRESS, gameType)
 
-	err := row.Scan(&userGame.ID, pq.Array(&words))
+	err := row.Scan(&userGame.ID, &userGame.Puzzle, pq.Array(&words))
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -55,11 +55,14 @@ func (g *Game) GetActiveGame(userId int64, gameType int8) (*game.Game, error) {
 	}
 	userGame.Type = gameType
 	userGame.Status = game.STATUS_IN_PROGRESS
+	userGame.Words = make(map[int8]*game.Word)
 
 	for k, word := range words {
-		userGame.Words[int8(k)] = &game.Word{
+		gameWord := &game.Word{
 			Word: word,
 		}
+		gameWord.CalcAgainst(userGame.Puzzle)
+		userGame.Words[int8(k)] = gameWord
 	}
 
 	return &userGame, nil
