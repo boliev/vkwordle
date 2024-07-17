@@ -27,7 +27,8 @@ func (a *Api) Run() {
 		return nil
 	})
 
-	api.Get("/game/start", gameHandler.Start)
+	api.Post("/game/start", gameHandler.Start)
+	api.Post("/game/word", gameHandler.Word)
 	port := 8180
 	fmt.Printf("Serving on localhost:%d\n", port)
 	panic(fasthttp.ListenAndServe(fmt.Sprintf(":%d", port), r.HandleRequest))

@@ -67,3 +67,14 @@ func (g *Game) GetActiveGame(userId int64, gameType int8) (*game.Game, error) {
 
 	return &userGame, nil
 }
+
+func (g *Game) AddWord(gameId int64, word string) error {
+	const s = "UPDATE games SET words = array_append(words, $1) WHERE id = $2"
+
+	_, err := g.DB.Exec(s, word, gameId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
