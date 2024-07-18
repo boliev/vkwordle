@@ -1,6 +1,9 @@
 package game
 
-import "sync"
+import (
+	"fmt"
+	"sync"
+)
 
 const STATUS_IN_PROGRESS = 0
 const STATUS_FAIL = 5
@@ -11,9 +14,9 @@ type Game struct {
 	ID     int64  `json:"id"`
 	Puzzle string `json:"-"`
 	UserId int64  `json:"user_id"`
-	Status int8   `json:"status"`
-	Type   int8   `json:"type"`
-	Words  map[int8]*Word
+	Status int    `json:"status"`
+	Type   int    `json:"type"`
+	Words  map[int]*Word
 }
 
 func (g *Game) Calc() {
@@ -34,5 +37,34 @@ func (g *Game) InProgress() bool {
 }
 
 func (g *Game) AddWord(word string) {
-	g.Words[int8(len(g.Words))] = &Word{Word: word}
+	g.Words[len(g.Words)] = &Word{Word: word}
+}
+
+func (g *Game) WordsLen() int {
+	return len(g.Words)
+}
+
+func (g *Game) lastWord() (*Word, error) {
+	if len(g.Words) == 0 {
+		return nil, fmt.Errorf("game has no words")
+	}
+
+	return g.Words[g.WordsLen()-1], nil
+}
+
+func (g *Game) IsLastWordCorrect() bool {
+	if len(g.Words) == 0 {
+		return false
+	}
+	lastWord, err := g.lastWord()
+	if err != nil {
+		return false
+	}
+
+	for _, status := range lastWord.Letters {
+		if status != LETTER_STATE_IN_PLACE {
+			return false
+		}
+	}
+	return true
 }

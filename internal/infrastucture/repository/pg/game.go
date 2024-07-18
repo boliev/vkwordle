@@ -34,11 +34,11 @@ func (g *Game) CreateGame(userId int64, word string) (*game.Game, error) {
 		UserId: userId,
 		Status: game.STATUS_IN_PROGRESS,
 		Type:   game.TYPE_5_WORDS,
-		Words:  make(map[int8]*game.Word),
+		Words:  make(map[int]*game.Word),
 	}, nil
 }
 
-func (g *Game) GetActiveGame(userId int64, gameType int8) (*game.Game, error) {
+func (g *Game) GetActiveGame(userId int64, gameType int) (*game.Game, error) {
 	const s = "SELECT id, puzzle, words FROM games WHERE user_id = $1 AND status = $2 AND type = $3 LIMIT 1"
 	userGame := game.Game{}
 	var words []string
@@ -55,14 +55,14 @@ func (g *Game) GetActiveGame(userId int64, gameType int8) (*game.Game, error) {
 	}
 	userGame.Type = gameType
 	userGame.Status = game.STATUS_IN_PROGRESS
-	userGame.Words = make(map[int8]*game.Word)
+	userGame.Words = make(map[int]*game.Word)
 
 	for k, word := range words {
 		gameWord := &game.Word{
 			Word: word,
 		}
 		gameWord.CalcAgainst(userGame.Puzzle)
-		userGame.Words[int8(k)] = gameWord
+		userGame.Words[k] = gameWord
 	}
 
 	return &userGame, nil
@@ -72,6 +72,17 @@ func (g *Game) AddWord(gameId int64, word string) error {
 	const s = "UPDATE games SET words = array_append(words, $1) WHERE id = $2"
 
 	_, err := g.DB.Exec(s, word, gameId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (g *Game) Finish(gameId int64, status int) error {
+	const s = "UPDATE games SET status = $1 WHERE id = $2"
+
+	_, err := g.DB.Exec(s, status, gameId)
 	if err != nil {
 		return err
 	}

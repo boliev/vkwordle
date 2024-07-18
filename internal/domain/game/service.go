@@ -58,6 +58,28 @@ func (s *Service) AddWord(game *Game, word string) error {
 	}
 	game.AddWord(word)
 	game.Calc()
+	err = s.TryToFinishGame(game)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Service) TryToFinishGame(game *Game) error {
+	if game.IsLastWordCorrect() {
+		game.Status = STATUS_WON
+		err := s.gameRepo.Finish(game.ID, STATUS_WON)
+		if err != nil {
+			return err
+		}
+	} else if game.Type == TYPE_5_WORDS && game.WordsLen() == 6 {
+		game.Status = STATUS_FAIL
+		err := s.gameRepo.Finish(game.ID, STATUS_FAIL)
+		if err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
