@@ -5,12 +5,14 @@ import "fmt"
 type Service struct {
 	puzzleRepo PuzzleRepository
 	gameRepo   GameRepository
+	nounRepo   NounRepository
 }
 
-func NewService(puzzleRepo PuzzleRepository, gameRepo GameRepository) *Service {
+func NewService(puzzleRepo PuzzleRepository, gameRepo GameRepository, nounRepo NounRepository) *Service {
 	return &Service{
 		puzzleRepo: puzzleRepo,
 		gameRepo:   gameRepo,
+		nounRepo:   nounRepo,
 	}
 }
 
@@ -52,7 +54,16 @@ func (s *Service) AddWord(game *Game, word string) error {
 		return fmt.Errorf("invalid word %s", word)
 	}
 
-	err := s.gameRepo.AddWord(game.ID, word)
+	isReal, err := s.nounRepo.IsWordReal(word, game.Type)
+	if err != nil {
+		return err
+	}
+
+	if !isReal {
+		return fmt.Errorf("there is no word %s", word)
+	}
+
+	err = s.gameRepo.AddWord(game.ID, word)
 	if err != nil {
 		return err
 	}

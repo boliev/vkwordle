@@ -74,26 +74,26 @@ func (g *Game) Word(rctx *routing.Context) error {
 		return nil
 	}
 
-	game, err := g.gameService.GetActiveGame(userId)
+	activeGame, err := g.gameService.GetActiveGame(userId)
 	if err != nil {
 		log.Errorf("%s", err)
 		rctx.RequestCtx.Error("active game not found", 400)
 		return nil
 	}
 
-	if game == nil {
+	if activeGame == nil {
 		log.Errorf("active game not found for user %d", userId)
 		rctx.RequestCtx.Error("active game not found", 400)
 		return nil
 	}
 
-	if !game.InProgress() {
-		log.Errorf("game is finished %d", game.ID)
+	if !activeGame.InProgress() {
+		log.Errorf("game is finished %d", activeGame.ID)
 		rctx.RequestCtx.Error("game is finished. You should start a new game", 400)
 		return nil
 	}
 
-	err = g.gameService.AddWord(game, request.Word)
+	err = g.gameService.AddWord(activeGame, request.Word)
 
 	if err != nil {
 		log.Errorf("%s", err)
@@ -102,7 +102,7 @@ func (g *Game) Word(rctx *routing.Context) error {
 	}
 
 	response := GameResponse{
-		Game: game,
+		Game: activeGame,
 	}
 
 	jsn, err := json.Marshal(response)

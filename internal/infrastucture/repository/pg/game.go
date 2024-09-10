@@ -56,6 +56,7 @@ func (g *Game) GetActiveGame(userId int64, gameType int) (*game.Game, error) {
 	userGame.Type = gameType
 	userGame.Status = game.STATUS_IN_PROGRESS
 	userGame.Words = make(map[int]*game.Word)
+	userGame.UserId = userId
 
 	for k, word := range words {
 		gameWord := &game.Word{

@@ -10,3 +10,7 @@ type GameRepository interface {
 	AddWord(gameId int64, word string) error
 	Finish(gameId int64, status int) error
 }
+
+type NounRepository interface {
+	IsWordReal(word string, gameType int) (bool, error)
+}

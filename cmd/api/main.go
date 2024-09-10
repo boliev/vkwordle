@@ -6,6 +6,7 @@ import (
 	"github.com/boliev/vkwordle/internal/app/api"
 	"github.com/boliev/vkwordle/internal/domain/game"
 	"github.com/boliev/vkwordle/internal/infrastucture/repository/pg"
+	migrations_fs "github.com/boliev/vkwordle/migrations"
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose/v3"
 	log "github.com/sirupsen/logrus"
@@ -21,8 +22,9 @@ func main() {
 
 	puzzleRepo := pg.NewPuzzle(db)
 	gameRepo := pg.NewGame(db)
+	nounRepo := pg.NewNoun(db)
 
-	gameService := game.NewService(puzzleRepo, gameRepo)
+	gameService := game.NewService(puzzleRepo, gameRepo, nounRepo)
 	app := api.NewApi(gameService)
 	app.Run()
 }
@@ -64,7 +66,9 @@ func migrate(db *sql.DB) error {
 		return err
 	}
 
-	if err := goose.Up(db, "migrations"); err != nil {
+	goose.SetBaseFS(migrations_fs.EmbedMigrations)
+
+	if err := goose.Up(db, "."); err != nil {
 		return err
 	}
 
