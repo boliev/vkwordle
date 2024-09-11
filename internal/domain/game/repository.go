@@ -2,6 +2,7 @@ package game
 
 type PuzzleRepository interface {
 	GetRandomPuzzle() (*Puzzle, error)
+	GetPuzzle(word string) (*Puzzle, error)
 }
 
 type GameRepository interface {

@@ -94,3 +94,7 @@ func (s *Service) TryToFinishGame(game *Game) error {
 
 	return nil
 }
+
+func (s *Service) GetPuzzle(word string) (*Puzzle, error) {
+	return s.puzzleRepo.GetPuzzle(word)
+}

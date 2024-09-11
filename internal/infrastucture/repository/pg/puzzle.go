@@ -28,3 +28,17 @@ func (p *Puzzle) GetRandomPuzzle() (*game.Puzzle, error) {
 
 	return puzzle, nil
 }
+
+func (p *Puzzle) GetPuzzle(word string) (*game.Puzzle, error) {
+	const s = "SELECT word, category, hint FROM puzzles WHERE word = $1"
+
+	puzzle := &game.Puzzle{}
+	row := p.DB.QueryRow(s, word)
+
+	err := row.Scan(&puzzle.Word, &puzzle.Category, &puzzle.Hint)
+	if err != nil {
+		return nil, err
+	}
+
+	return puzzle, nil
+}
