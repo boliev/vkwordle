@@ -11,12 +11,13 @@ const STATUS_WON = 10
 const TYPE_5_WORDS = 5
 
 type Game struct {
-	ID     int64  `json:"id"`
-	Puzzle string `json:"-"`
-	UserId int64  `json:"user_id"`
-	Status int    `json:"status"`
-	Type   int    `json:"type"`
-	Words  map[int]*Word
+	ID       int64             `json:"id"`
+	Puzzle   string            `json:"-"`
+	UserId   int64             `json:"userId"`
+	Status   int               `json:"status"`
+	Type     int               `json:"type"`
+	Words    map[int]*Word     `json:"words"`
+	Keyboard map[string]string `json:"keyboard"`
 }
 
 func (g *Game) Calc() {
@@ -30,6 +31,17 @@ func (g *Game) Calc() {
 		}()
 	}
 	wg.Wait()
+	g.CreateKeyboard()
+}
+
+func (g *Game) CreateKeyboard() {
+	g.Keyboard = make(map[string]string)
+	for _, word := range g.Words {
+		for index, status := range word.Letters {
+			l := string([]rune(word.Word)[index])
+			g.Keyboard[l] = status
+		}
+	}
 }
 
 func (g *Game) InProgress() bool {

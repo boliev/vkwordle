@@ -5,8 +5,8 @@ const LETTER_STATE_PRESENT = "present"
 const LETTER_STATE_WRONG = "wrong"
 
 type Word struct {
-	Word    string
-	Letters map[int]string
+	Word    string         `json:"word"`
+	Letters map[int]string `json:"letters"`
 }
 
 func (w *Word) CalcAgainst(puzzle string) {

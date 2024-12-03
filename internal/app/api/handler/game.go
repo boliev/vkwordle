@@ -26,8 +26,7 @@ func NewGame(gameService *game.Service) *Game {
 func (g *Game) Start(rctx *routing.Context) error {
 	userId, err := getUserId(rctx)
 	if err != nil {
-		log.Errorf("%s", err)
-		rctx.RequestCtx.Error("cannot start game. User not found", 400)
+		returnError(rctx, err, 400, "cannot start game. User not found")
 		return nil
 	}
 
@@ -196,7 +195,7 @@ func (g *Game) getUserPuzzle(rctx *routing.Context) (*game.Puzzle, error) {
 }
 
 func getUserId(rctx *routing.Context) (int64, error) {
-	userIdBytes := rctx.Request.Header.Peek("userId")
+	userIdBytes := rctx.Request.Header.Peek("User-Id")
 	if len(userIdBytes) == 0 {
 		return 0, fmt.Errorf("user not found")
 	}

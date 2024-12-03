@@ -66,6 +66,8 @@ func (g *Game) GetActiveGame(userId int64, gameType int) (*game.Game, error) {
 		userGame.Words[k] = gameWord
 	}
 
+	userGame.CreateKeyboard()
+
 	return &userGame, nil
 }
 

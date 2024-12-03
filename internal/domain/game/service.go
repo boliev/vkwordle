@@ -1,11 +1,15 @@
 package game
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 type Service struct {
 	puzzleRepo PuzzleRepository
 	gameRepo   GameRepository
 	nounRepo   NounRepository
+	mu         sync.Mutex
 }
 
 func NewService(puzzleRepo PuzzleRepository, gameRepo GameRepository, nounRepo NounRepository) *Service {
@@ -13,10 +17,13 @@ func NewService(puzzleRepo PuzzleRepository, gameRepo GameRepository, nounRepo N
 		puzzleRepo: puzzleRepo,
 		gameRepo:   gameRepo,
 		nounRepo:   nounRepo,
+		mu:         sync.Mutex{},
 	}
 }
 
 func (s *Service) CreateGame(userId int64) (*Game, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
 	activeGame, err := s.GetActiveGame(userId)
 	if err != nil {
